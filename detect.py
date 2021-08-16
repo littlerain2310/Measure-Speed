@@ -26,7 +26,7 @@ class ObjectDetection:
         self.model = self.load_model()
         self.model.conf = 0.4 # set inference threshold at 0.3
         self.model.iou = 0.3 # set inference IOU threshold at 0.3
-        self.model.classes = [2] # set model to only detect "Car" class
+        self.model.classes = [0] # set model to only detect "Car" class
         self.out_file = out_file
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

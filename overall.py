@@ -12,8 +12,8 @@ video = cv2.VideoCapture('highway.mp4')
 
 
 # Dinh nghia cac tham so dai , rong
-f_width = 1280
-f_height = 720
+f_width = 640
+f_height = 360
 
 # Cai dat tham so : so diem anh / 1 met, o day dang de 1 pixel = 1 met
 pixels_per_meter = 1
@@ -73,7 +73,10 @@ def calculate_speed(startPosition, currentPosition, fps):
 	return speed_in_kilometer_per_hour
 
 mot_tracker=Sort()
-
+x_shape = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+y_shape = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+four_cc = cv2.VideoWriter_fourcc(*"MJPG")
+out = cv2.VideoWriter('resultsPC.avi', four_cc, 20, (x_shape, y_shape))
 while True:
 	start_time = time.time()
 	_, image = video.read()
@@ -97,16 +100,10 @@ while True:
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	_,cars = car_detect.get_bb(gray)
 	tracked_cars = mot_tracker.update(cars)
-	for (x1,y1,x2,y2,id) in tracked_cars:
-		x1,y1,x2,y2 = int(x1),int(y1),int(x2),int(y2)
-		ID = id
-		car_with_ID = ([x1,y1,x2,y2],ID)
-		car_with_IDs.append(car_with_ID)
 	
 	# Thuc hien update position cac car
-	for bbox,ID in car_with_IDs:
-
-		x1,y1,x2,y2 = bbox
+	for x1,y1,x2,y2,ID in tracked_cars:
+		bbox = x1,y1,x2,y2
 		random.seed(ID)
 		h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
 		color = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
@@ -117,7 +114,7 @@ while True:
 		cv2.putText(output_image, text, (centroid[0] - 10, centroid[1] - 10),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		cv2.circle(output_image, (centroid[0], centroid[1]), 4, color, -1)
-
+	# out.write(output_image)
 	# # Tinh toan frame per second
 	# end_time = time.time()
 	# if not (end_time == start_time):
@@ -147,4 +144,4 @@ while True:
 	if cv2.waitKey(1) == ord('q'):
 		break
 
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()

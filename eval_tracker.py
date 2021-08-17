@@ -57,24 +57,31 @@ while True:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _,human = human_detect.get_bb(gray)
     # print(human)
-    try:
-        tracked_man = mot_tracker.update(human)
-        # print('ok')
-    except:
-        continue
-    confidence = [c[4] for c in human]
-    confidence.reverse()
-    tracked_with_conf = zip(tracked_man,confidence)
-    # Thuc hien update position cac car
-    for (x1,y1,x2,y2,ID),confidence in tracked_with_conf:
-        # print('ok')
-        x1,y1,x2,y2,ID = int(x1),int(y1),int(x2),int(y2),int(ID)
-        width = x2 -x1
-        height = y2 - y1
+    for man in human:
+        x1,y1,x2,y2,conf = man
+        cv2.rectangle(output_image, (x1, y1), (x2 , y2 ), (0,255 , 0), 2)
+    cv2.imshow('video', output_image)
+    # Detect phim Q
+    if cv2.waitKey(1) == ord('q'):
+        break
+#     try:
+#         tracked_man = mot_tracker.update(human)
+#         # print('ok')
+#     except:
+#         continue
+#     confidence = [c[4] for c in human]
+#     confidence.reverse()
+#     tracked_with_conf = zip(tracked_man,confidence)
+#     # Thuc hien update position cac car
+#     for (x1,y1,x2,y2,ID),confidence in tracked_with_conf:
+#         # print('ok')
+#         x1,y1,x2,y2,ID = int(x1),int(y1),int(x2),int(y2),int(ID)
+#         width = x2 -x1
+#         height = y2 - y1
 
-        detect_tracker += '{},{},{},{},{},{},{},-1,-1,-1'.format(frame_idx,ID,x1,y2,width,height,confidence)
-        detect_tracker += '\n'
+#         detect_tracker += '{},{},{},{},{},{},{},-1,-1,-1'.format(frame_idx,ID,x1,y2,width,height,confidence)
+#         detect_tracker += '\n'
    
-with open('dt.txt', 'w') as f:
-    f.write('{}'.format(detect_tracker))
-    f.close()  
+# with open('dt.txt', 'w') as f:
+#     f.write('{}'.format(detect_tracker))
+#     f.close()  

@@ -8,7 +8,7 @@ from sort.sort import *
 import random
 import colorsys
 car_detect = ObjectDetection()
-video = cv2.VideoCapture('highway.mp4')
+video = cv2.VideoCapture('Venice.mp4')
 
 
 # Dinh nghia cac tham so dai , rong
@@ -109,7 +109,7 @@ while True:
 		color = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
 		# Calculate centroid from bbox, display it and its unique ID
 		centroid = bbox_to_centroid(bbox)
-		text = "ID {}".format(ID)
+		text = "ID {} frame {}".format(ID,frame_idx)
 		# cv2.rectangle(output_image, (x1, y1), (x2, y2), color, 4)
 		cv2.putText(output_image, text, (centroid[0] - 10, centroid[1] - 10),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)

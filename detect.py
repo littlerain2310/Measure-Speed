@@ -16,7 +16,7 @@ class ObjectDetection:
     3. Use the inferences to plot boxes on objects along with labels.
     Upcoming Features:
     """
-    def __init__(self, input_file='abc', out_file="Labeled_Video.avi"):
+    def __init__(self, input_file='abc',classes=[0], out_file="Labeled_Video.avi"):
         """
         :param input_file: provide youtube url which will act as input for the model.
         :param out_file: name of a existing file, or a new file in which to write the output.
@@ -26,7 +26,7 @@ class ObjectDetection:
         self.model = self.load_model()
         self.model.conf = 0.4 # set inference threshold at 0.3
         self.model.iou = 0.3 # set inference IOU threshold at 0.3
-        self.model.classes = [0] # set model to only detect "Car" class
+        self.model.classes = classes # set model to only detect "Human" class
         self.out_file = out_file
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

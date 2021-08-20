@@ -32,20 +32,27 @@ class MeasureSpeed:
         for (objectID,centroid) in self.objects:
             to = self.trackableObject.get(objectID,None)
 
+            
             if to is None:
                 #update position
                 to = TrackableObject(objectID,centroid)
-                
-            elif not to.estimated:
+            elif not to.estimated:   
+                to.centroids.append(centroid)      
+                # print(to.centroids)
             # check if the direction of the object has been set, if
             # not, calculate it, and set it
                 if to.direction is None:
+                    to.direction = 0
+                if to.direction == 0 and (len(to.centroids) > 2):
+                    # print(len(to.centroids))
                     y = [c[1] for c in to.centroids]
                     direction = centroid[1] - np.mean(y)
                     to.direction = direction
+                
                 #moving forward
+                # print(len(to.centroids))
                 # print(to.direction)
-                if to.direction >= 0:
+                if to.direction > 0:
                 # check to see if timestamp has been noted for
                 # point A
                     if to.timestamp["A"] == 0 :
@@ -71,7 +78,7 @@ class MeasureSpeed:
                             # print('reach B')
                             to.lastPoint = True
                 #moving backward
-                if to.direction < 0:
+                elif to.direction < 0:
                     
                     # check to see if timestamp has been noted for
                     # point B
@@ -121,7 +128,8 @@ class MeasureSpeed:
                 print("[INFO] Speed of the {} that just passed"\
                     " is: {:.2f} MPH".format(to.objectID,to.speedMPH))
         # store the trackable object in our dictionary
-        self.trackableObject[objectID] = to
+            
+            self.trackableObject[objectID] = to
            
     def run(self):
         x_shape = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))

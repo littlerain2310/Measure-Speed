@@ -40,6 +40,8 @@ class MeasureSpeed:
             
             elif not to.estimated:   
                 to.centroids.append(centroid)   
+                
+                to.color = color
                 # print(to.centroids)
             # check if the direction of the object has been set, if
             # not, calculate it, and set it
@@ -79,27 +81,7 @@ class MeasureSpeed:
                             to.position["B"] = centroid[1]
                             # print('reach B')
                             to.lastPoint = True
-                #moving backward
-                elif to.direction < 0:
-                    # check to see if timestamp has been noted for
-                    # point B
-                    if to.timestamp["B"] == 0:
-                        # if the centroid's x-coordinate is greater than
-                        # the corresponding point then set the timestamp
-                        # as current timestamp and set the position as the
-                        # centroid's x-coordinate
-                        if centroid[1] < self.B_points:
-                            to.timestamp["B"] = self.frame_idx
-                            to.position["B"] = centroid[1]
-                    elif to.timestamp["A"] == 0 :
-                        # if the centroid's x-coordinate is greater than
-                        # the corresponding point then set the timestamp
-                        # as current timestamp and set the position as the
-                        # centroid's x-coordinate
-                        if centroid[1] < self.A_points:
-                            to.timestamp["A"] = self.frame_idx
-                            to.position["A"] = centroid[1]
-                            to.lastPoint = True
+               
             if to.lastPoint and not to.estimated:
                 # print('Estimasting ...')
                 # initialize the list of estimated speeds
@@ -139,7 +121,7 @@ class MeasureSpeed:
             
                 
         # store the trackable object in our dictionary
-            
+            to.bbox = bbox
             self.trackableObject[objectID] = to
     
     def run(self):
@@ -147,6 +129,10 @@ class MeasureSpeed:
         
         y_shape = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         four_cc = cv2.VideoWriter_fourcc(*"MJPG")
+        start_p1 = (350,self.A_points)
+        end_p1 = (752,self.A_points)
+        start_p2 = (210,self.B_points)
+        end_p2 = (850,self.B_points)
         # out = cv2.VideoWriter(self.output, four_cc, 20, (x_shape, y_shape))
         while True :
             start_time = time.time()
@@ -156,8 +142,10 @@ class MeasureSpeed:
                 break
 
             image = cv2.resize(image, (self.f_width, self.f_height))
+            
             self.output_image = image.copy()
-
+            self.output_image = cv2.line(self.output_image,start_p1,end_p1,(0,255,0),9)
+            self.output_image = cv2.line(self.output_image,start_p2,end_p2,(0,255,0),9)
             self.frame_idx += 1
             # remove_bad_tracker()
             
@@ -181,27 +169,40 @@ class MeasureSpeed:
                 
                 x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
                 # print(a)
-                cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
-                # cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-                #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                # cv2.circle(self.output_image, (centroid[0], centroid[1]), 4, color, -1)
+                # cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+                # # cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+                # #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                # # cv2.circle(self.output_image, (centroid[0], centroid[1]), 4, color, -1)
                 object = (ID,centroid,color,bbox)
                 self.objects.append(object)
                 to = self.trackableObject.get(ID,None)
                 text = "ID {} ".format(ID)
-                if to is not None and to.estimated:
+                try :
+                    if to.timestamp['A'] != 0 and to.direction >0:
+                        cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+                        cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    if  to.estimated:
 
-                    text = "ID {} speed : {:.2f}km/h".format(ID,to.speedKMPH)
-                    cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                else:
-                    cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+                        text = "ID {} speed : {:.2f}km/h".format(ID,to.speedKMPH)
+                        cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                except:
+                    pass
+            self.calculate_speed()
+            # for car in self.trackableObject.values():
+            #     if car.timestamp['A'] != 0 and car.direction >0:
+            #         x1,y1,x2,y2=car.bbox
+            #         x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
+            #         color = car.color
+            #         cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+
             #calculate fps
+            # out.write(self.output_image)
             end_time = time.time()
             if not (end_time == start_time):
                 self.fps = 1.0/(end_time - start_time)
-            self.calculate_speed()
+            
             
             cv2.imshow('video', self.output_image)
             # Detect phim Q

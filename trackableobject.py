@@ -6,6 +6,8 @@ class TrackableObject:
         # using the current centroid
         self.objectID = objectID
         self.centroids = [centroid]
+        self.bbox =None
+        self.color = (0,0,0)
         # initialize a dictionaries to store the timestamp and
         # position of the object at various points
         self.timestamp = {"A": 0, "B": 0}

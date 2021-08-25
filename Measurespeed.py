@@ -17,9 +17,10 @@ class MeasureSpeed:
         self.frame_idx = 0
         self.A_points = 300
         self.B_points = 500
-        self.fps = 0
+        
         self.speed = [None] * 1000
         self.video = cv2.VideoCapture(self.input)
+        self.fps = self.video.get(cv2.CAP_PROP_FPS)
         self.trackableObject = {}
         self.totalFrames =0
         self.objects = []
@@ -98,7 +99,7 @@ class MeasureSpeed:
                     # check if the distance in pixels is zero, if so,
                     # skip this iteration
                     t = number_frame/int(self.fps)
-                    
+                    # print(self.fps)
                     if distanceInPixels == 0 or t == 0:
                         continue
                     # calculate the time in hours
@@ -106,7 +107,7 @@ class MeasureSpeed:
                     # calculate distance in kilometers and append the
 
                     # calculated speed to the list
-                    distanceInMeters = distanceInPixels /1
+                    distanceInMeters = distanceInPixels /10
                     meter_per_second = distanceInMeters /t
                     km_per_hour = meter_per_second * 3.6
                     
@@ -123,7 +124,40 @@ class MeasureSpeed:
         # store the trackable object in our dictionary
             to.bbox = bbox
             self.trackableObject[objectID] = to
-    
+    def tracking(self,cars):
+        tracked_cars =self.tracker.update(cars)
+            
+        # Thuc hien update position cac car
+        for x1,y1,x2,y2,ID in tracked_cars:
+            bbox = x1,y1,x2,y2
+            random.seed(ID)
+            h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
+            color = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
+            # Calculate centroid from bbox, display it and its unique ID
+            centroid = bbox_to_centroid(bbox)
+            
+            x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
+            # print(a)
+            # cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+            # # cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+            # #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            # # cv2.circle(self.output_image, (centroid[0], centroid[1]), 4, color, -1)
+            object = (ID,centroid,color,bbox)
+            self.objects.append(object)
+            to = self.trackableObject.get(ID,None)
+            text = "ID {} ".format(ID)
+            try :
+                if to.timestamp['A'] != 0 and to.direction >0:
+                    cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+                    cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                if  to.estimated:
+
+                    text = "ID {} speed : {:.2f}km/h".format(ID,to.speedKMPH)
+                    cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            except:
+                pass
     def run(self):
         x_shape = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
         
@@ -154,41 +188,13 @@ class MeasureSpeed:
             
             
             # Thuc hien detect car trong hinh
-            
+            zone_car  = []
             cars = self.get_bb(image)
-            tracked_cars =self.tracker.update(cars)
-            
-            # Thuc hien update position cac car
-            for x1,y1,x2,y2,ID in tracked_cars:
-                bbox = x1,y1,x2,y2
-                random.seed(ID)
-                h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
-                color = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
-                # Calculate centroid from bbox, display it and its unique ID
-                centroid = bbox_to_centroid(bbox)
-                
-                x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
-                # print(a)
-                # cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
-                # # cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-                # #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                # # cv2.circle(self.output_image, (centroid[0], centroid[1]), 4, color, -1)
-                object = (ID,centroid,color,bbox)
-                self.objects.append(object)
-                to = self.trackableObject.get(ID,None)
-                text = "ID {} ".format(ID)
-                try :
-                    if to.timestamp['A'] != 0 and to.direction >0:
-                        cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
-                        cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    if  to.estimated:
-
-                        text = "ID {} speed : {:.2f}km/h".format(ID,to.speedKMPH)
-                        cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                except:
-                    pass
+            for car in cars :
+                x1, y1, x2, y2,confidence = car
+                if y2 >= self.A_points:
+                    zone_car.append(car)
+            self.tracking(zone_car)
             self.calculate_speed()
             # for car in self.trackableObject.values():
             #     if car.timestamp['A'] != 0 and car.direction >0:
@@ -200,8 +206,8 @@ class MeasureSpeed:
             #calculate fps
             # out.write(self.output_image)
             end_time = time.time()
-            if not (end_time == start_time):
-                self.fps = 1.0/(end_time - start_time)
+            # if not (end_time == start_time):
+            #     self.fps = 1.0/(end_time - start_time)
             
             
             cv2.imshow('video', self.output_image)

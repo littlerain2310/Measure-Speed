@@ -9,7 +9,7 @@ import colorsys
 class MeasureSpeed:
     def __init__(self,input,output = 'result.avi'):
         self.tracker = Sort()
-        self.detect = ObjectDetection(classes=[2])
+        self.detect = ObjectDetection(classes=[2,3])
         self.input = input
         self.output = output
         self.f_width = 1280

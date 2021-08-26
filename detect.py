@@ -121,8 +121,14 @@ class ObjectDetection:
             # out.write(frame)
         player.release()
 
-
-# link = sys.argv[1]
-# # output_file = sys.argv[2]
-# a = ObjectDetection(link)
-# a()
+class DetectImage(ObjectDetection):
+    def __init__(self, classes, out_file='abc.avi'):
+        super().__init__( classes=classes, out_file=out_file)
+    
+    def get_bb(self,input):
+        image = cv2.imread(input)
+        return super().get_bb(image)
+    
+# a = DetectImage(classes=[2])#class car
+# _,cars = a.get_bb('image005291.jpg')
+# print(cars)

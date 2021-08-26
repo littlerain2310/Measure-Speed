@@ -23,7 +23,7 @@ def read_text(filepath):
 def get_boxes(filepath):
     gt = read_text(filepath)
     content = [x.strip() for x in gt] 
-    box_each_frame = init_list_of_objects(600)
+    box_each_frame = init_list_of_objects(10000)
     for obj in content:
         l = obj.split(',')
         x,y = int(l[2]),int(l[3])

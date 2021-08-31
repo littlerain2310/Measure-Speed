@@ -19,3 +19,7 @@ def bbox_to_centroid(bbox):
     cY = int((bbox[1] + bbox[3]) / 2.0)
 
     return cX, cY
+def xy_xywh(x1,y1,x2,y2):
+    width = x2 -x1
+    height = y2 - y1
+    return x1,y1,width,height

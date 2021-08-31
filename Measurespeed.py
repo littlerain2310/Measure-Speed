@@ -1,14 +1,16 @@
-from sort.sort import *
+from tracker import Tracker
 from detect import ObjectDetection
 from trackableobject import TrackableObject
 import cv2
 import random
 from util import bbox_to_centroid
 import colorsys
+import time
+import numpy as np
 
 class MeasureSpeed:
     def __init__(self,input,output = 'result.avi'):
-        self.tracker = Sort()
+        self.tracker = Tracker()
         self.detect = ObjectDetection(classes=[2,3])
         self.input = input
         self.output = output
@@ -125,7 +127,7 @@ class MeasureSpeed:
             to.bbox = bbox
             self.trackableObject[objectID] = to
     def tracking(self,cars):
-        tracked_cars =self.tracker.update(cars)
+        tracked_cars =self.tracker.tracked(cars)
             
         # Thuc hien update position cac car
         for x1,y1,x2,y2,ID in tracked_cars:

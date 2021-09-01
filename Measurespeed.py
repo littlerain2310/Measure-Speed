@@ -1,4 +1,4 @@
-from tracker import Tracker
+from tracker import DeepSort
 from detect import ObjectDetection
 from trackableobject import TrackableObject
 import cv2
@@ -10,7 +10,7 @@ import numpy as np
 
 class MeasureSpeed:
     def __init__(self,input,output = 'result.avi'):
-        self.tracker = Tracker()
+        self.tracker = DeepSort()
         self.detect = ObjectDetection(classes=[2,3])
         self.input = input
         self.output = output
@@ -126,28 +126,33 @@ class MeasureSpeed:
         # store the trackable object in our dictionary
             to.bbox = bbox
             self.trackableObject[objectID] = to
-    def tracking(self,cars):
-        tracked_cars =self.tracker.tracked(cars)
-            
+    def tracking(self,cars,image):
+        self.tracker.object = cars
+        tracked_cars = self.tracker.tracking(image)
+        
         # Thuc hien update position cac car
-        for x1,y1,x2,y2,ID in tracked_cars:
-            bbox = x1,y1,x2,y2
+        for track in tracked_cars.tracks:
+            
+            if not track.is_confirmed() or track.time_since_update > 1:
+                continue 
+            bbox = track.to_tlbr()
+
+
+            #draw on object 
+            x1,y1,x2,y2 = [int(x) for x in bbox]
+            ID = track.track_id
             random.seed(ID)
             h, s, l = random.random(), 0.5 + random.random() / 2.0, 0.4 + random.random() / 5.0
             color = [int(256 * i) for i in colorsys.hls_to_rgb(h, l, s)]
             # Calculate centroid from bbox, display it and its unique ID
             centroid = bbox_to_centroid(bbox)
             
-            x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
-            # print(a)
-            # cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
-            # # cv2.putText(self.output_image, text, (centroid[0] - 10, centroid[1] - 10),
-            # #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            # # cv2.circle(self.output_image, (centroid[0], centroid[1]), 4, color, -1)
+            x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)         
             object = (ID,centroid,color,bbox)
             self.objects.append(object)
             to = self.trackableObject.get(ID,None)
             text = "ID {} ".format(ID)
+            #estimate speed
             try :
                 if to.timestamp['A'] != 0 and to.direction >0:
                     cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
@@ -183,35 +188,20 @@ class MeasureSpeed:
             self.output_image = cv2.line(self.output_image,start_p1,end_p1,(0,255,0),9)
             self.output_image = cv2.line(self.output_image,start_p2,end_p2,(0,255,0),9)
             self.frame_idx += 1
-            # remove_bad_tracker()
-            
-            untrack_cars=[]
-            # print('ok')
-            
-            
             # Thuc hien detect car trong hinh
             zone_car  = []
             cars = self.get_bb(image)
             for car in cars :
                 x1, y1, x2, y2,confidence = car
-                if y2 >= self.A_points:
+                if y2 >= self.A_points and x2 <= 850:
                     zone_car.append(car)
-            self.tracking(zone_car)
+            self.tracking(zone_car,image)
             self.calculate_speed()
-            # for car in self.trackableObject.values():
-            #     if car.timestamp['A'] != 0 and car.direction >0:
-            #         x1,y1,x2,y2=car.bbox
-            #         x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
-            #         color = car.color
-            #         cv2.rectangle(self.output_image, (x1, y1), (x2, y2), color,2)
+            
 
             #calculate fps
             # out.write(self.output_image)
             end_time = time.time()
-            # if not (end_time == start_time):
-            #     self.fps = 1.0/(end_time - start_time)
-            
-            
             cv2.imshow('video', self.output_image)
             # Detect phim Q
             if cv2.waitKey(1) == ord('q'):

@@ -59,7 +59,6 @@ while True :
     
     tracker.predict()
     tracker.update(detections)  
-    
     for track in tracker.tracks:
         if not track.is_confirmed() or track.time_since_update > 1:
             continue 

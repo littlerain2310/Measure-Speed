@@ -1,7 +1,11 @@
 from typing import List
 from scipy.optimize.optimize import main
-from tracker import Tracker
+from tracker import DeepSort
 from functools import partial
+import sys
+import cv2
+import os
+from collections import defaultdict
 # from sort.sort import *
 
 def init_list_of_objects(size):
@@ -23,35 +27,50 @@ def read_text(filepath):
 def get_boxes(filepath):
     gt = read_text(filepath)
     content = [x.strip() for x in gt] 
-    box_each_frame = init_list_of_objects(10000)
+    box_each_frame = defaultdict(list) #dict has bbox for each frame
     for obj in content:
         l = obj.split(',')
         x,y = int(l[2]),int(l[3])
         x2 = int(l[4]) +x 
         y2 = int(l[5]) +y
         box = [x,y,x2,y2,1]
-        box_each_frame[int(l[0])-1].append(box)
+        box_each_frame[int(l[0])].append(box)
+        
     return box_each_frame
+
+input_dir = sys.argv[1]
+
 bb= get_boxes('gt.txt')
 
-tracking = Tracker()
+tracking = DeepSort()
 tracked = []
-# print(bb[0])
-after_tracked =''
-# objects_tracked =tracking.update(bb[0])
-# objects_tracked =tracking.update(bb[1])
-# print(objects_tracked)
-for k,box in enumerate(bb):
-    objects_tracked =tracking.tracked(box)
-    for track in objects_tracked:
-        x1,y1,x2,y2,iD = track
-        x = int(x1)
-        y = int(y1)
-        width = int(x2 -x1)
-        height = int(y2-y1)
-        ID = int(iD)
-        after_tracked += '{},{},{},{},{},{},{},{},{},{}'.format(k+1,ID,x,y,width,height,1,-1,-1,-1)
+
+after_tracked =''#string to be evaluated
+
+for frame in bb:#k is the frame
+
+    image_path = os.path.join(input_dir,f'{frame}.jpg')
+    image = cv2.imread(image_path)
+
+
+    box = bb[frame]
+    tracking.object = box
+    objects_tracked = tracking.tracking(image)
+
+    for track in objects_tracked.tracks:
+        # if not track.is_confirmed() or track.time_since_update > 1:
+        #         continue 
+        bbox = track.to_tlbr()
+        x1,y1,x2,y2 = [int(x) for x in bbox]
+        x = x1
+        y = y1
+        width = x2 -x1
+        height = y2-y1
+        ID = int(track.track_id)
+        after_tracked += '{},{},{},{},{},{},{},{},{},{}'.format(frame,ID,x,y,width,height,1,-1,-1,-1)
         after_tracked += '\n'
+        # print('{},{},{},{},{},{},{},{},{},{}'.format(frame,ID,x,y,width,height,1,-1,-1,-1))
+# print(after_tracked)
 with open('dt.txt', 'w') as f:
     f.write('{}'.format(after_tracked))
     f.close()  

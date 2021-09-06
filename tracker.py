@@ -30,6 +30,7 @@ class DeepSort:
     def tracking(self,image):
         prep_obj = []
         scores = []
+        self.object = sorted(self.object, key= lambda x : (x[1],x[0]),reverse= True)
         for obj in self.object :
             x1,y1,x2,y2,confidence = obj
             x,y,w,h = xy_xywh(x1,y1,x2,y2)

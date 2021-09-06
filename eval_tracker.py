@@ -58,8 +58,8 @@ for frame in bb:#k is the frame
     objects_tracked = tracking.tracking(image)
 
     for track in objects_tracked.tracks:
-        # if not track.is_confirmed() or track.time_since_update > 1:
-        #         continue 
+        if  track.time_since_update > 1:
+                continue 
         bbox = track.to_tlbr()
         x1,y1,x2,y2 = [int(x) for x in bbox]
         x = x1

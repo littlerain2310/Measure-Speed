@@ -1,10 +1,10 @@
 from detect import DetectImage
 from util import image_files_from_folder
-
+import sys
 
 a = DetectImage(classes= [2])
 
-files = '/home/long/Downloads/M-30'
+files = sys.argv[1]
 img_files = image_files_from_folder(files)
 
 for img_path in img_files:
@@ -16,6 +16,6 @@ for img_path in img_files:
         x1,y1,x2,y2,c = car
         if y1 > -0.7*x1 +322 and y1 > 70:
             dt += 'cars {} {} {} {} {}\n'.format(c,x1,y1,x2,y2)
-    with open('detect/dt/{}.txt'.format(filename), 'w') as f:
+    with open('eval_detect/{}.txt'.format(filename), 'w') as f:
         f.write('{}'.format(dt))
         f.close()  

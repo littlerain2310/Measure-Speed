@@ -45,6 +45,7 @@ class ObjectDetection:
         Function loads the yolo5 model from PyTorch Hub.
         """
         model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
         return model
 
     def score_frame(self, frame):
@@ -130,5 +131,7 @@ class DetectImage(ObjectDetection):
         return super().get_bb(image)
     
 # a = DetectImage(classes=[2])#class car
-# _,cars = a.get_bb('image005291.jpg')
-# print(cars)
+# image,cars = a.get_bb('7519.jpg')
+# # print(cars)
+# cv2.imshow('test',image)
+# cv2.waitKey(0)

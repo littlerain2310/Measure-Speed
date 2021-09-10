@@ -40,8 +40,8 @@ for img_path in img_files:
     tracked = car_track.tracking(image)
     
     for track in tracked.tracks:
-        # if not track.is_confirmed() or track.time_since_update > 1:
-        #         continue 
+        if not track.is_confirmed() or track.time_since_update > 1:
+            continue 
         bbox = track.to_tlbr()
         x1,y1,x2,y2 = bbox
         x = int(x1)

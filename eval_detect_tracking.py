@@ -34,7 +34,7 @@ for img_path in img_files:
     car_zone = []
     for box in bboxes: 
         x1,y1,x2,y2,c = box
-        if y1 > -0.7*x1 +322 and y1 > 45:
+        if y1 > -0.7*x1 +322 and y1 > 43 and x1 < (y1+414)/0.9:
             car_zone.append(box)
     car_track.object = car_zone
     tracked = car_track.tracking(image)

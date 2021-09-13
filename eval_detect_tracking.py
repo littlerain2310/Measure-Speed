@@ -10,7 +10,7 @@ img_files = image_files_from_folder(input_dir)
 
 
 
-det = DetectImage(classes=[2,3,7])
+det = DetectImage(classes=[0])
 car_track = DeepSort()
 
 

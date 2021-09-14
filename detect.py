@@ -131,7 +131,7 @@ class DetectImage(ObjectDetection):
         return super().get_bb(image)
     
 # a = DetectImage(classes=[0])#class car
-# image,cars = a.get_bb('7519.jpg')
+# image,cars = a.get_bb('963.jpg')
 # # print(cars)
 # cv2.imshow('test',image)
 # cv2.waitKey(0)

@@ -15,7 +15,9 @@ for img_path in img_files:
     dt = ''
     for car in cars :
         x1,y1,x2,y2,c = car
-        if y1>135 and x2 > - ((y2 - 268.14)/0.28) and x1< 444:
+        if y1>135 and x2 > - ((y2 - 270)/0.28) and x1< 444:
+            if y1 > 150 and (x2 - x1 ) < 40 and x1 < 325:
+                continue
             dt += 'vehicles {} {} {} {} {}\n'.format(c,x1,y1,x2,y2)
     with open('{}/{}.txt'.format(output,filename), 'w') as f:
         f.write('{}'.format(dt))

@@ -15,7 +15,8 @@ for img_path in img_files:
     dt = ''
     for car in cars :
         x1,y1,x2,y2,c = car
-        if y1>135 and x2 > - ((y2 - 270)/0.28) and x1< 444:
+        # if y1 > -0.7*x1 +322 and y1 > 43 and x1 < (y1+414)/0.9 and y2 <= 430:#M-30
+        if y1>135 and x2 > - ((y2 - 270)/0.28) and x1< 444:#Urban1
             if y1 > 150 and (x2 - x1 ) < 40 and x1 < 325:
                 continue
             dt += 'vehicles {} {} {} {} {}\n'.format(c,x1,y1,x2,y2)

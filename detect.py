@@ -24,7 +24,7 @@ class ObjectDetection:
         """
         self.input_file = input_file
         self.model = self.load_model()
-        self.model.conf = 0.4 # set inference threshold at 0.3
+        self.model.conf = 0.3 # set inference threshold at 0.3
         self.model.iou = 0.3 # set inference IOU threshold at 0.3
         self.model.classes = classes # set model to only detect "Human" class
         self.out_file = out_file
@@ -130,8 +130,8 @@ class DetectImage(ObjectDetection):
         image = cv2.imread(input)
         return super().get_bb(image)
     
-# a = DetectImage(classes=[0])#class car
-# image,cars = a.get_bb('963.jpg')
-# # print(cars)
-# cv2.imshow('test',image)
-# cv2.waitKey(0)
+a = DetectImage(classes=[0])#class car
+image,cars = a.get_bb('test_image/157.jpg')
+# print(cars)
+cv2.imshow('test',image)
+cv2.waitKey(0)

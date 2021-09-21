@@ -19,7 +19,6 @@ class MeasureSpeed:
         self.frame_idx = 0
         self.A_points = 300
         self.B_points = 500
-        
         self.speed = [None] * 1000
         self.video = cv2.VideoCapture(self.input)
         self.fps = self.video.get(cv2.CAP_PROP_FPS)

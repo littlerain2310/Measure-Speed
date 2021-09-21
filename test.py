@@ -12,10 +12,10 @@ model = torch.hub.load('ultralytics/yolov5', 'custom', path='model_data/best.pt'
 # img1 = Image.open('zidane.jpg')  # PIL image
 # img2 = cv2.imread('bus.jpg')[..., ::-1]  # OpenCV image (BGR to RGB)
 # imgs = [img1, img2]  # batch of images
-model.conf = 0.1
+model.conf = 0.7
 
-model.iou = 0.45
-img = cv2.imread('7519.jpg')
+model.iou = 0.3
+img = cv2.imread('test_image/157.jpg')
 # Inference
 results = model(img)  # includes NMS
 

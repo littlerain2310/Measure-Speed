@@ -2,4 +2,4 @@
 ObjectDetection + Tracking + Speed
 
 
-Just modify video source the MeasureSpeed.py and run python MeasureSpeed.py
+Just modify video source in MeasureSpeed.py and run python MeasureSpeed.py
